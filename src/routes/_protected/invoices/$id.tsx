@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_protected/invoices/$id")({
 });
 
 function RouteComponent() {
-  const { id } = useLoaderData({ from: "/_protected/$id" });
+  const { id } = useLoaderData({ from: "/_protected/invoices/$id" });
   const {
     data: { invoice },
   } = useSuspenseQuery(invoiceQueryOptions(id));

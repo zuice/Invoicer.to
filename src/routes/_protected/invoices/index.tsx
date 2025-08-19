@@ -120,7 +120,7 @@ function RouteComponent() {
                       </TableCell>
                       <TableCell className="text-right space-x-2">
                         <Button variant="outline" size="icon" asChild>
-                          <Link to="/$id" params={{ id: invoice.id }}>
+                          <Link to="/invoices/$id" params={{ id: invoice.id }}>
                             <Eye className="h-4 w-4" />
                           </Link>
                         </Button>
