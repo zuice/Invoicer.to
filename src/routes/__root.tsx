@@ -83,7 +83,7 @@ function RootDocument() {
       <body className="h-svh w-svw flex flex-col">
         <hr />
         <Outlet />
-        <Toaster richColors />
+        <Toaster richColors position="top-center" />
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
       </body>
