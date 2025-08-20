@@ -7,5 +7,6 @@ export const db = drizzle({
   schema,
   connection: {
     url: env.DB_FILE_NAME,
+    authToken: env.TURSO_KEY,
   },
 });

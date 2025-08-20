@@ -6,6 +6,7 @@ const envSchema = z.object({
     .default("development"),
   PORT: z.coerce.number().min(1024).max(65535).default(3000),
   DB_FILE_NAME: z.string(),
+  TURSO_KEY: z.string().optional().default(""),
   EMAIL_HOST: z.string(),
   EMAIL_USER: z.string(),
   EMAIL_PASS: z.string(),
