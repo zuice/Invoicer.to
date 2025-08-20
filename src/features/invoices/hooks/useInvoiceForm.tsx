@@ -40,8 +40,7 @@ function TextField({
 function SelectField({
   label,
   options,
-  ...props
-}: ComponentProps<"select"> & {
+}: {
   label: string;
   options: { label: string; value: string }[];
 }) {

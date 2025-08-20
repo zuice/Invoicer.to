@@ -1,4 +1,5 @@
 import { FormEvent } from "react";
+import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { X, Plus } from "lucide-react";
@@ -7,8 +8,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useInvoiceForm } from "@/features/invoices/hooks/useInvoiceForm";
 import { newInvoiceMutationOptions } from "@/features/invoices/server/newInvoiceFn";
 import { Button } from "@/components/ui/button";
-import { invoiceSchema } from "@/features/invoices/schemas";
-import { PAYMENT_TERMS } from "../constants";
+import { invoiceSchema, paymentTermsSchema } from "@/features/invoices/schemas";
+import { PAYMENT_TERMS } from "@/features/invoices/constants";
 
 export function InvoiceForm() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export function InvoiceForm() {
     defaultValues: {
       invoiceNumber: "",
       date: new Date(),
+      paymentTerms: "DUE_ON_RECEIPT" as z.infer<typeof paymentTermsSchema>,
       fromName: "",
       fromEmail: "",
       fromStreet: "",
