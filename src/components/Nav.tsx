@@ -114,9 +114,14 @@ export function Nav({ user }: Props) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                  <AvatarImage src={user?.avatarUrl ?? ""} />
+                  <AvatarImage src="" />
                   <AvatarFallback>
-                    {user?.name?.[0]?.toUpperCase() ?? "U"}
+                    {user?.name
+                      ?.split(" ")
+                      .reduce(
+                        (acc, value) => `${acc}${value[0].toUpperCase()}`,
+                        "",
+                      )}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>

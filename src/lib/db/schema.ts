@@ -1,13 +1,14 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { InferSelectModel, relations } from "drizzle-orm";
 import { addMinutes } from "date-fns";
+import { randomInt } from "node:crypto";
 
 // Users table
 export const users = sqliteTable("users", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-
+  name: text("name").notNull().default("John Smith"),
   email: text("email").notNull().unique(),
 });
 
@@ -32,7 +33,9 @@ export const otps = sqliteTable("otps", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 
-  code: text("code").notNull(),
+  code: text("code")
+    .notNull()
+    .$defaultFn(() => randomInt(100000, 999999).toString()),
 
   expiresAt: integer("expires_at", { mode: "timestamp" })
     .$defaultFn(() => addMinutes(new Date(), 10))
@@ -52,16 +55,14 @@ export const invoices = sqliteTable("invoices", {
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-
   invoiceNumber: text("invoice_number"),
-
   date: integer("date", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
-
   dueDate: integer("due_date", { mode: "timestamp" }),
-
-  taxRate: real("tax_rate").default(0.07).notNull(),
+  status: text("status", { enum: ["PENDING", "PAID", "OVERDUE"] })
+    .default("PENDING")
+    .notNull(),
 
   fromName: text("from_name").notNull(),
   fromEmail: text("from_email").notNull(),

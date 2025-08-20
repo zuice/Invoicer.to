@@ -105,14 +105,14 @@ function RouteComponent() {
                       <TableCell>
                         <Badge
                           variant={
-                            invoice.status === "paid"
+                            invoice.status === "PAID"
                               ? "success"
-                              : invoice.status === "overdue"
+                              : invoice.status === "OVERDUE"
                                 ? "destructive"
                                 : "secondary"
                           }
                         >
-                          {invoice.status ?? "pending"}
+                          {invoice.status?.toLowerCase()}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">

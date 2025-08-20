@@ -21,8 +21,7 @@ export function InvoiceRaw({ invoice }: Props) {
     (sum, item) => sum + item.quantity * item.price,
     0,
   );
-  const tax = subtotal * invoice.taxRate;
-  const total = subtotal + tax;
+  const total = subtotal;
 
   return (
     <>
@@ -114,12 +113,6 @@ export function InvoiceRaw({ invoice }: Props) {
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
             <span>${subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              Tax ({(invoice.taxRate * 100).toFixed(0)}%)
-            </span>
-            <span>${tax.toFixed(2)}</span>
           </div>
           <div className="flex justify-between border-t pt-2 font-bold text-lg">
             <span>Total</span>

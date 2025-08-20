@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { randomInt } from "crypto";
 import { eq } from "drizzle-orm";
 import { mutationOptions } from "@tanstack/react-query";
 
@@ -26,25 +25,21 @@ export const requestOtpFn = createServerFn({ method: "POST" })
     let [user] = await db.select().from(users).where(eq(users.email, email));
 
     if (!user) {
-      [user] = await db
-        .insert(users)
-        .values({ id: crypto.randomUUID(), email })
-        .returning();
+      [user] = await db.insert(users).values({ email }).returning();
     }
 
-    const code = String(randomInt(100000, 999999));
-
-    await db.insert(otps).values({
-      id: crypto.randomUUID(),
-      userId: user.id,
-      code,
-    });
+    const [otp] = await db
+      .insert(otps)
+      .values({
+        userId: user.id,
+      })
+      .returning({ code: otps.code });
 
     const info = await transporter.sendMail({
       from: '"Invoicer" <no-reply@invoicer.to>',
       to: email,
       subject: "Your login code",
-      text: `Your one-time code is ${code}`,
+      text: `Your one-time code is ${otp.code}`,
     });
 
     console.log("Preview URL: " + nodemailer.getTestMessageUrl(info));

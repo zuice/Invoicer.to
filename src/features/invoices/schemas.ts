@@ -14,11 +14,6 @@ export const lineItemSchema = z.object({
 export const invoiceSchema = z.object({
   invoiceNumber: z.string(),
   date: z.date(),
-  taxRate: z
-    .number({ invalid_type_error: "Tax rate must be a number" })
-    .min(0, "Tax rate must be >= 0")
-    .max(1, "Tax rate must be <= 1")
-    .default(0.07),
   fromName: z.string().min(1, "Your name is required"),
   fromEmail: z.string().email("Invalid email"),
   fromStreet: z.string(),
@@ -35,6 +30,3 @@ export const invoiceSchema = z.object({
   toCountry: z.string(),
   items: z.array(lineItemSchema).min(1, "At least one line item is required"),
 });
-
-export type InvoiceFormValues = z.infer<typeof invoiceSchema>;
-export type LineItemFormValues = z.infer<typeof lineItemSchema>;

@@ -20,7 +20,7 @@ export const getAuthFn = createServerFn({ method: "GET" }).handler(async () => {
   const { id } = session.user;
 
   const user = await db
-    .select({ id: users.id, email: users.email })
+    .select({ id: users.id, email: users.email, name: users.name })
     .from(users)
     .where(eq(users.id, id));
 

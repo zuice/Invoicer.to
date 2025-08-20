@@ -35,7 +35,6 @@ export function InvoiceForm() {
       toPostal: "",
       toCountry: "",
       items: [{ description: "", details: "", quantity: 1, price: 0 }],
-      taxRate: 0.07,
     },
     validators: {
       onChange: invoiceSchema,
@@ -220,16 +219,11 @@ export function InvoiceForm() {
                 (sum, item) => sum + item.quantity * item.price,
                 0,
               );
-              const tax = subtotal * values.taxRate;
-              const total = subtotal + tax;
+              const total = subtotal;
 
               return (
                 <div className="text-right space-y-1">
                   <p>Subtotal: ${subtotal.toFixed(2)}</p>
-                  <p>
-                    Tax ({(values.taxRate * 100).toFixed(0)}%): $
-                    {tax.toFixed(2)}
-                  </p>
                   <p className="font-bold text-lg">
                     Total: ${total.toFixed(2)}
                   </p>
