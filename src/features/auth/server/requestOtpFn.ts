@@ -36,7 +36,7 @@ export const requestOtpFn = createServerFn({ method: "POST" })
       .returning({ code: otps.code });
 
     const info = await transporter.sendMail({
-      from: '"Invoicer" <no-reply@invoicer.to>',
+      from: "noreply@edg.sh",
       to: email,
       subject: "Your login code",
       text: `Your one-time code is ${otp.code}`,
