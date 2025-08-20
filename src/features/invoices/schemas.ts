@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { PAYMENT_TERMS } from "@/features/invoices/constants";
+
 export const lineItemSchema = z.object({
   description: z.string().min(1, "Description is required"),
   details: z.string(),
@@ -11,9 +13,12 @@ export const lineItemSchema = z.object({
     .min(0, "Price must be 0 or greater"),
 });
 
+export const paymentTerms = z.enum(PAYMENT_TERMS);
+
 export const invoiceSchema = z.object({
+  paymentTerms,
   invoiceNumber: z.string(),
-  date: z.date(),
+  date: z.coerce.date(),
   fromName: z.string().min(1, "Your name is required"),
   fromEmail: z.string().email("Invalid email"),
   fromStreet: z.string(),

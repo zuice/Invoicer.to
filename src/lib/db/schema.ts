@@ -2,6 +2,7 @@ import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { InferSelectModel, relations } from "drizzle-orm";
 import { addMinutes } from "date-fns";
 import { randomInt } from "node:crypto";
+import { PAYMENT_TERMS } from "@/features/invoices/constants";
 
 // Users table
 export const users = sqliteTable("users", {
@@ -59,7 +60,11 @@ export const invoices = sqliteTable("invoices", {
   date: integer("date", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
-  dueDate: integer("due_date", { mode: "timestamp" }),
+  paymentTerms: text("payment_terms", {
+    enum: PAYMENT_TERMS,
+  })
+    .default("DUE_ON_RECEIPT")
+    .notNull(),
   status: text("status", { enum: ["PENDING", "PAID", "OVERDUE"] })
     .default("PENDING")
     .notNull(),

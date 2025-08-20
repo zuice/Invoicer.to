@@ -15,7 +15,7 @@ function RouteComponent() {
   return (
     <>
       <Nav user={user} />
-      <div className="container mx-auto">
+      <div className="container mx-auto flex flex-col gap-4 mt-4">
         <Outlet />
       </div>
     </>

@@ -21,6 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { invoicesQueryOptions } from "@/features/invoices/server/getInvoicesFn";
 import { deleteInvoiceFn } from "@/features/invoices/server/deleteInvoiceFn";
+import { Heading } from "@/components/Heading";
 
 export const Route = createFileRoute("/_protected/invoices/")({
   loader: ({ context }) =>
@@ -51,15 +52,12 @@ function RouteComponent() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Page Header */}
+    <>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
-          <p className="text-muted-foreground">
-            Manage and track all your invoices in one place.
-          </p>
-        </div>
+        <Heading
+          title="Invoices"
+          description="Manage and track all of your invoices in one place."
+        />
         <Button asChild>
           <Link to="/invoices/new">+ New Invoice</Link>
         </Button>
@@ -159,6 +157,6 @@ function RouteComponent() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }

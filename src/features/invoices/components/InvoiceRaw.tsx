@@ -49,6 +49,9 @@ export function InvoiceRaw({ invoice }: Props) {
           <p className="text-sm text-muted-foreground">
             Date: {invoice.date.toLocaleDateString()}
           </p>
+          <p className="text-sm text-muted-foreground">
+            Due by: {invoice.paymentTerms}
+          </p>
           <p className="font-bold text-lg">Balance Due: ${total.toFixed(2)}</p>
         </div>
       </div>

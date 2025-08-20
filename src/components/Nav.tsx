@@ -35,7 +35,7 @@ export function Nav({ user }: Props) {
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-md">
-      <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="container mx-auto h-16 flex items-center justify-between">
         {/* Left: Brand + Nav */}
         <div className="flex items-center gap-6">
           <Link
