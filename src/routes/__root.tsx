@@ -8,6 +8,7 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
+import "@bprogress/core/css";
 import appCss from "@/styles/app.css?url";
 import { seo } from "@/utils/seo";
 import { NotFound } from "@/components/NotFound";

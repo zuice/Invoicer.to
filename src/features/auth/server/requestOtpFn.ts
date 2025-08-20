@@ -12,7 +12,7 @@ import { emailSchema } from "@/features/auth/schemas";
 // Ethereal test account
 const transporter = nodemailer.createTransport({
   host: env.EMAIL_HOST,
-  port: 587,
+  port: env.NODE_ENV === "production" ? 465 : 587,
   auth: {
     user: env.EMAIL_USER,
     pass: env.EMAIL_PASS,
