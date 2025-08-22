@@ -1,30 +1,23 @@
 import { FormEvent } from "react";
-import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { X, Plus } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { z } from "zod";
+import { Plus, X } from "lucide-react";
 
-import { useInvoiceForm } from "@/features/invoices/hooks/useInvoiceForm";
-import { newInvoiceMutationOptions } from "@/features/invoices/server/newInvoiceFn";
+import { useAppForm } from "@/features/forms/hooks/useAppForm";
 import { Button } from "@/components/ui/button";
 import { invoiceSchema, paymentTermsSchema } from "@/features/invoices/schemas";
 import { PAYMENT_TERMS } from "@/features/invoices/constants";
+import { newInvoiceMutationOptions } from "@/features/invoices/server/newInvoiceFn";
 
 export function InvoiceForm() {
   const navigate = useNavigate();
-  const form = useInvoiceForm({
+  const form = useAppForm({
     defaultValues: {
       invoiceNumber: "",
       date: new Date(),
       paymentTerms: "DUE_ON_RECEIPT" as z.infer<typeof paymentTermsSchema>,
-      fromName: "",
-      fromEmail: "",
-      fromStreet: "",
-      fromCity: "",
-      fromState: "",
-      fromPostal: "",
-      fromCountry: "",
       toName: "",
       toEmail: "",
       toStreet: "",
@@ -34,18 +27,21 @@ export function InvoiceForm() {
       toCountry: "",
       items: [{ description: "", details: "", quantity: 1, price: 0 }],
     },
-    validators: { onChange: invoiceSchema },
-    onSubmit: async ({ value: data }) => {
-      mutate({ data });
+    validators: { onBlur: invoiceSchema },
+    onSubmit: async ({ value }) => {
+      mutate({ data: value });
     },
   });
 
-  const { mutate, isPending } = useMutation({
+  const { mutate } = useMutation({
     ...newInvoiceMutationOptions(),
     onSuccess: () => {
-      toast.success("Your invoice has been saved.");
+      toast.success("Invoice saved.");
       form.reset();
-      setTimeout(() => navigate({ to: "/invoices" }), 300);
+      setTimeout(() => navigate({ to: "/invoices" }), 250);
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Failed to save invoice");
     },
   });
 
@@ -59,17 +55,14 @@ export function InvoiceForm() {
     <form onSubmit={handleSubmit}>
       <form.AppForm>
         <div className="w-full md:max-w-2xl lg:max-w-5xl">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]">
+            <div className="space-y-5">
+              {/* Header */}
               <section className="rounded-lg border bg-white p-4 shadow-sm md:p-5">
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <form.AppField name="invoiceNumber">
                     {(f) => (
-                      <f.TextField
-                        label="Invoice #"
-                        placeholder="e.g. INV-1024"
-                        autoComplete="off"
-                      />
+                      <f.TextField label="Invoice #" placeholder="INV-1024" />
                     )}
                   </form.AppField>
                   <form.AppField name="date">
@@ -79,126 +72,67 @@ export function InvoiceForm() {
                     {(f) => (
                       <f.SelectField
                         label="Payment Terms"
-                        options={PAYMENT_TERMS.map((paymentTerm) => ({
-                          label: paymentTerm
+                        options={PAYMENT_TERMS.map((term) => ({
+                          label: term
                             .split("_")
-                            .map(
-                              (word) =>
-                                `${word[0]}${word.substring(1, word.length).toLowerCase()} `,
-                            )
+                            .map((w) => w[0] + w.slice(1).toLowerCase())
                             .join(" "),
-                          value: paymentTerm,
+                          value: term,
                         }))}
                       />
                     )}
                   </form.AppField>
                 </div>
               </section>
-
-              {/* From / To: stacked on mobile, side-by-side on lg */}
-              <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <div className="rounded-lg border bg-white p-4 shadow-sm md:p-5">
-                  <h2 className="text-sm font-medium text-muted-foreground">
-                    From
-                  </h2>
-                  <div className="mt-3 grid grid-cols-1 gap-3 md:gap-4">
-                    <form.AppField name="fromName">
-                      {(f) => (
-                        <f.TextField label="Name" placeholder="Your name" />
-                      )}
-                    </form.AppField>
-                    <form.AppField name="fromEmail">
-                      {(f) => (
-                        <f.TextField
-                          label="Email"
-                          type="email"
-                          inputMode="email"
-                          autoComplete="email"
-                          placeholder="you@company.com"
-                        />
-                      )}
-                    </form.AppField>
-                    <form.AppField name="fromStreet">
-                      {(f) => (
-                        <f.TextField
-                          label="Street"
-                          placeholder="Street address"
-                        />
-                      )}
-                    </form.AppField>
-                    <div className="grid grid-cols-2 gap-3">
-                      <form.AppField name="fromCity">
-                        {(f) => <f.TextField label="City" />}
-                      </form.AppField>
-                      <form.AppField name="fromState">
-                        {(f) => <f.TextField label="State/Prov." />}
-                      </form.AppField>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <form.AppField name="fromPostal">
-                        {(f) => (
-                          <f.TextField label="Postal" inputMode="numeric" />
-                        )}
-                      </form.AppField>
-                      <form.AppField name="fromCountry">
-                        {(f) => <f.TextField label="Country" />}
-                      </form.AppField>
-                    </div>
-                  </div>
+              <section className="rounded-lg border bg-white p-4 shadow-sm md:p-5">
+                <h2 className="text-sm font-medium text-muted-foreground">
+                  Bill To
+                </h2>
+                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+                  <form.AppField name="toName">
+                    {(f) => (
+                      <f.TextField
+                        label="Client Name"
+                        placeholder="Client Co."
+                      />
+                    )}
+                  </form.AppField>
+                  <form.AppField name="toEmail">
+                    {(f) => (
+                      <f.TextField
+                        label="Client Email"
+                        type="email"
+                        inputMode="email"
+                        placeholder="client@company.com"
+                      />
+                    )}
+                  </form.AppField>
                 </div>
 
-                <div className="rounded-lg border bg-white p-4 shadow-sm md:p-5">
-                  <h2 className="text-sm font-medium text-muted-foreground">
-                    To
-                  </h2>
-                  <div className="mt-3 grid grid-cols-1 gap-3 md:gap-4">
-                    <form.AppField name="toName">
-                      {(f) => (
-                        <f.TextField label="Name" placeholder="Client name" />
-                      )}
-                    </form.AppField>
-                    <form.AppField name="toEmail">
-                      {(f) => (
-                        <f.TextField
-                          label="Email"
-                          type="email"
-                          inputMode="email"
-                          autoComplete="email"
-                          placeholder="client@company.com"
-                        />
-                      )}
-                    </form.AppField>
-                    <form.AppField name="toStreet">
-                      {(f) => (
-                        <f.TextField
-                          label="Street"
-                          placeholder="Street address"
-                        />
-                      )}
-                    </form.AppField>
-                    <div className="grid grid-cols-2 gap-3">
-                      <form.AppField name="toCity">
-                        {(f) => <f.TextField label="City" />}
-                      </form.AppField>
-                      <form.AppField name="toState">
-                        {(f) => <f.TextField label="State/Prov." />}
-                      </form.AppField>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <form.AppField name="toPostal">
-                        {(f) => (
-                          <f.TextField label="Postal" inputMode="numeric" />
-                        )}
-                      </form.AppField>
-                      <form.AppField name="toCountry">
-                        {(f) => <f.TextField label="Country" />}
-                      </form.AppField>
-                    </div>
-                  </div>
+                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+                  <form.AppField name="toStreet">
+                    {(f) => (
+                      <f.TextField label="Street" placeholder="123 Client St" />
+                    )}
+                  </form.AppField>
+                  <form.AppField name="toCity">
+                    {(f) => <f.TextField label="City" />}
+                  </form.AppField>
+                  <form.AppField name="toState">
+                    {(f) => <f.TextField label="State / Province" />}
+                  </form.AppField>
+                  <form.AppField name="toPostal">
+                    {(f) => (
+                      <f.TextField label="Postal Code" inputMode="numeric" />
+                    )}
+                  </form.AppField>
+                  <form.AppField name="toCountry">
+                    {(f) => <f.TextField label="Country" />}
+                  </form.AppField>
                 </div>
               </section>
 
-              {/* Items: cards on mobile; compact grid on md+ */}
+              {/* Items */}
               <section className="rounded-lg border bg-white p-4 shadow-sm md:p-5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-medium text-muted-foreground">
@@ -228,20 +162,19 @@ export function InvoiceForm() {
                           key={i}
                           className="rounded-md border p-3 shadow-sm md:p-4"
                         >
-                          {/* On md+: a 12-col grid mimicking a table */}
                           <div className="grid grid-cols-1 gap-3 md:grid-cols-12 md:gap-4">
-                            <div className="md:col-span-5">
+                            <div className="md:col-span-6">
                               <form.AppField name={`items[${i}].description`}>
                                 {(f) => (
                                   <f.TextField
                                     label="Description"
-                                    placeholder="What is this?"
+                                    placeholder="Service or product"
                                   />
                                 )}
                               </form.AppField>
                             </div>
 
-                            <div className="md:col-span-3">
+                            <div className="md:col-span-2">
                               <form.AppField name={`items[${i}].quantity`}>
                                 {(f) => (
                                   <f.TextField
@@ -286,7 +219,6 @@ export function InvoiceForm() {
                               </button>
                             </div>
 
-                            {/* Details spans full width on mobile and md */}
                             <div className="md:col-span-12">
                               <form.AppField name={`items[${i}].details`}>
                                 {(f) => (
@@ -321,7 +253,6 @@ export function InvoiceForm() {
                 </form.Field>
               </section>
 
-              {/* Inline summary for mobile/tablet; hidden on lg (sidebar replaces) */}
               <form.Subscribe selector={(s) => s.values}>
                 {(values) => {
                   const subtotal = values.items.reduce(
@@ -349,7 +280,6 @@ export function InvoiceForm() {
               <div className="h-20 lg:h-0" />
             </div>
 
-            {/* Sidebar summary on desktop */}
             <div className="hidden lg:block">
               <form.Subscribe selector={(s) => s.values}>
                 {(values) => {
@@ -361,11 +291,11 @@ export function InvoiceForm() {
                   );
                   const total = subtotal;
                   return (
-                    <aside className="sticky top-4 rounded-lg border bg-white p-4 shadow-sm">
+                    <aside className="flex flex-col gap-2 sticky top-4 rounded-lg border bg-white p-4 shadow-sm">
                       <h3 className="text-sm font-medium text-muted-foreground">
                         Summary
                       </h3>
-                      <div className="mt-3 space-y-2 text-sm">
+                      <div className="mt-3 text-sm">
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground">
                             Subtotal
@@ -377,13 +307,7 @@ export function InvoiceForm() {
                           <span>${total.toFixed(2)}</span>
                         </div>
                       </div>
-                      <Button
-                        type="submit"
-                        disabled={isPending}
-                        className="mt-4 w-full"
-                      >
-                        {isPending ? "Saving..." : "Save invoice"}
-                      </Button>
+                      <form.SubmitButton label="Save Invoice" />
                     </aside>
                   );
                 }}
@@ -392,7 +316,6 @@ export function InvoiceForm() {
           </div>
         </div>
 
-        {/* Sticky submit bar only on mobile/tablet */}
         <form.Subscribe selector={(s) => s.values}>
           {(values) => {
             const total = values.items.reduce(
@@ -409,9 +332,7 @@ export function InvoiceForm() {
                       ${total.toFixed(2)}
                     </div>
                   </div>
-                  <Button type="submit" disabled={isPending} className="px-6">
-                    {isPending ? "Saving..." : "Save invoice"}
-                  </Button>
+                  <form.SubmitButton label="Save Invoice" />
                 </div>
               </div>
             );

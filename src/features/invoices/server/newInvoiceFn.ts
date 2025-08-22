@@ -1,41 +1,60 @@
 import { z } from "zod";
 import { createServerFn } from "@tanstack/react-start";
+import { mutationOptions } from "@tanstack/react-query";
 
-import { getSessionFromRequest } from "@/utils/getSessionFromRequest";
 import { db } from "@/lib/db";
 import { invoices, lineItems } from "@/lib/db/schema";
 import { invoiceSchema } from "@/features/invoices/schemas";
-import { mutationOptions } from "@tanstack/react-query";
+import { getProfileFn } from "@/features/profile/server/getProfileFn";
+import { getSessionFromRequest } from "@/utils/getSessionFromRequest";
 
 export const newInvoiceFn = createServerFn({ method: "POST" })
   .validator(invoiceSchema)
   .handler(async ({ data }) => {
     const session = await getSessionFromRequest();
-    const { id: userId } = session.user;
+    const user = await getProfileFn();
 
-    const record = await db
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const fromPayload = {
+      fromName: user.name ?? "",
+      fromEmail: user.email ?? "",
+      fromStreet: user.street ?? "",
+      fromCity: user.city ?? "",
+      fromState: user.state ?? "",
+      fromPostal: user.postalCode ?? "",
+      fromCountry: user.country ?? "",
+    };
+
+    const insertPayload = {
+      ...data,
+      ...fromPayload,
+      userId: session.user.id,
+    };
+
+    const [inserted] = await db
       .insert(invoices)
-      .values({
-        ...data,
-        userId,
-        createdAt: new Date(),
-      })
+      .values(insertPayload)
       .returning({ id: invoices.id });
 
-    const invoice = record[0];
-    const records = data.items.map((lineItem) =>
-      db
-        .insert(lineItems)
-        .values({
-          ...lineItem,
-          invoiceId: invoice.id,
-        })
-        .execute(),
+    await Promise.all(
+      data.items.map((li) =>
+        db
+          .insert(lineItems)
+          .values({
+            invoiceId: inserted.id,
+            description: li.description,
+            details: li.details,
+            quantity: li.quantity,
+            price: li.price,
+          })
+          .execute(),
+      ),
     );
 
-    await Promise.all(records);
-
-    return invoice;
+    return inserted;
   });
 
 export function newInvoiceMutationOptions() {

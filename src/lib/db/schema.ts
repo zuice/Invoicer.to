@@ -4,18 +4,23 @@ import { addMinutes } from "date-fns";
 import { randomInt } from "node:crypto";
 import { PAYMENT_TERMS } from "@/features/invoices/constants";
 
-// Users table
 export const users = sqliteTable("users", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull().default("John Smith"),
   email: text("email").notNull().unique(),
+  active: integer("boolean", { mode: "boolean" }).default(false),
+  phone: text("phone"),
+  street: text("street"),
+  city: text("city"),
+  state: text("state"),
+  postalCode: text("postal_code"),
+  country: text("country"),
 });
 
 export type User = InferSelectModel<typeof users>;
 
-// Sessions table
 export const sessions = sqliteTable("sessions", {
   id: text("id").primaryKey(),
   userId: text("user_id")
@@ -24,7 +29,6 @@ export const sessions = sqliteTable("sessions", {
   expiresAt: integer("expires_at").notNull(),
 });
 
-// OTPs table
 export const otps = sqliteTable("otps", {
   id: text("id")
     .primaryKey()
@@ -47,7 +51,6 @@ export const otps = sqliteTable("otps", {
     .notNull(),
 });
 
-// Invoices table
 export const invoices = sqliteTable("invoices", {
   id: text("id")
     .primaryKey()
@@ -92,7 +95,6 @@ export const invoices = sqliteTable("invoices", {
   archived: integer("archived", { mode: "boolean" }).default(false),
 });
 
-// Line items table
 export const lineItems = sqliteTable("line_items", {
   id: text("id")
     .primaryKey()
@@ -108,7 +110,6 @@ export const lineItems = sqliteTable("line_items", {
   price: real("price").notNull().default(0),
 });
 
-// Relations
 export const usersRelations = relations(users, ({ many }) => ({
   invoices: many(invoices),
   sessions: many(sessions),

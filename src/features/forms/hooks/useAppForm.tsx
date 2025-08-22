@@ -1,5 +1,9 @@
 import { ComponentProps } from "react";
-import { createFormHookContexts, createFormHook } from "@tanstack/react-form";
+import {
+  createFormHookContexts,
+  createFormHook,
+  AnyFieldApi,
+} from "@tanstack/react-form";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,8 +19,17 @@ import {
 export const { fieldContext, formContext, useFieldContext, useFormContext } =
   createFormHookContexts();
 
+function FieldError({ field }: { field: AnyFieldApi }) {
+  return (
+    <span className="text-red-500 text-xs h-4">
+      {field.state.meta.isTouched && field.state.meta.errors?.[0]?.message}
+    </span>
+  );
+}
+
 function TextField({
   label,
+  className,
   ...props
 }: ComponentProps<"input"> & { label: string }) {
   const field = useFieldContext<string>();
@@ -26,13 +39,14 @@ function TextField({
       <span>{label}</span>
       <Input
         {...props}
-        className="border p-1 font-normal"
-        value={field.state.value}
+        className={["border p-1 font-normal", className]
+          .filter(Boolean)
+          .join(" ")}
+        value={field.state.value ?? ""}
+        onBlur={field.handleBlur}
         onChange={(e) => field.handleChange(e.target.value)}
       />
-      <span className="text-red-500 text-xs h-4">
-        {field.state.meta.isDirty && field.state.meta.errors?.[0]?.message}
-      </span>
+      <FieldError field={field} />
     </Label>
   );
 }
@@ -40,9 +54,13 @@ function TextField({
 function SelectField({
   label,
   options,
+  placeholder,
+  className,
 }: {
   label: string;
   options: { label: string; value: string }[];
+  placeholder?: string;
+  className?: string;
 }) {
   const field = useFieldContext<string>();
 
@@ -53,8 +71,8 @@ function SelectField({
         value={field.state.value ?? undefined}
         onValueChange={(v) => field.handleChange(v)}
       >
-        <SelectTrigger aria-label={label}>
-          <SelectValue />
+        <SelectTrigger aria-label={label} className={className}>
+          <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
           {options.map(({ label, value }, index) => (
@@ -64,9 +82,7 @@ function SelectField({
           ))}
         </SelectContent>
       </Select>
-      <span className="text-red-500 text-xs h-4">
-        {field.state.meta.isDirty && field.state.meta.errors?.[0]?.message}
-      </span>
+      <FieldError field={field} />
     </Label>
   );
 }
@@ -74,9 +90,14 @@ function SelectField({
 function SubmitButton({ label }: { label: string }) {
   const form = useFormContext();
   return (
-    <form.Subscribe selector={(s) => s.isSubmitting}>
-      {(isSubmitting) => (
-        <Button type="submit" disabled={isSubmitting}>
+    <form.Subscribe
+      selector={(s) => ({
+        isSubmitting: s.isSubmitting,
+        canSubmit: s.canSubmit,
+      })}
+    >
+      {({ isSubmitting, canSubmit }) => (
+        <Button type="submit" disabled={!canSubmit || isSubmitting}>
           {isSubmitting ? "Saving..." : label}
         </Button>
       )}
@@ -84,11 +105,7 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-export const {
-  useAppForm: useInvoiceForm,
-  withForm,
-  withFieldGroup,
-} = createFormHook({
+export const { useAppForm, withForm, withFieldGroup } = createFormHook({
   fieldContext,
   formContext,
   fieldComponents: {

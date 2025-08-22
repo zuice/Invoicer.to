@@ -19,19 +19,15 @@ export const invoiceSchema = z.object({
   invoiceNumber: z.string(),
   date: z.coerce.date(),
   paymentTerms: paymentTermsSchema,
-  fromName: z.string().min(1, "Your name is required"),
-  fromEmail: z.string().email("Invalid email"),
-  fromStreet: z.string(),
-  fromCity: z.string(),
-  fromState: z.string(),
-  fromPostal: z.string(),
-  fromCountry: z.string(),
-  toName: z.string().min(1, "Client name is required"),
+  toName: z.string().min(1, "Field is required"),
   toEmail: z.string().email("Invalid client email"),
-  toStreet: z.string(),
-  toCity: z.string(),
-  toState: z.string(),
-  toPostal: z.string(),
-  toCountry: z.string(),
+  toStreet: z.string().min(1, "Field is required"),
+  toCity: z.string().min(1, "Field is required"),
+  toState: z.string().min(1, "Field is required"),
+  toPostal: z.coerce
+    .string()
+    .max(5, "Postal code must be 5 characters")
+    .min(5, "Postal code must be 5 characters"),
+  toCountry: z.string().min(1, "Field is required"),
   items: z.array(lineItemSchema).min(1, "At least one line item is required"),
 });

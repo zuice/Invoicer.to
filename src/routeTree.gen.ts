@@ -11,9 +11,11 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
+import { Route as AuthCompleteProfileRouteImport } from './routes/auth/complete-profile'
 import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
 import { Route as ProtectedClientsRouteImport } from './routes/_protected/clients'
 import { Route as ProtectedInvoicesIndexRouteImport } from './routes/_protected/invoices/index'
@@ -23,6 +25,11 @@ import { ServerRoute as ProtectedApiInvoicesIdPdfServerRouteImport } from './rou
 
 const rootServerRouteImport = createServerRootRoute()
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProtectedRoute = ProtectedRouteImport.update({
   id: '/_protected',
   getParentRoute: () => rootRouteImport,
@@ -33,9 +40,14 @@ const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
   getParentRoute: () => ProtectedRoute,
 } as any)
 const AuthSignInRoute = AuthSignInRouteImport.update({
-  id: '/auth/sign-in',
-  path: '/auth/sign-in',
-  getParentRoute: () => rootRouteImport,
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCompleteProfileRoute = AuthCompleteProfileRouteImport.update({
+  id: '/complete-profile',
+  path: '/complete-profile',
+  getParentRoute: () => AuthRoute,
 } as any)
 const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
   id: '/settings',
@@ -70,8 +82,10 @@ const ProtectedApiInvoicesIdPdfServerRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/auth': typeof AuthRouteWithChildren
   '/clients': typeof ProtectedClientsRoute
   '/settings': typeof ProtectedSettingsRoute
+  '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/': typeof ProtectedIndexRoute
   '/invoices/$id': typeof ProtectedInvoicesIdRoute
@@ -79,8 +93,10 @@ export interface FileRoutesByFullPath {
   '/invoices': typeof ProtectedInvoicesIndexRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRouteWithChildren
   '/clients': typeof ProtectedClientsRoute
   '/settings': typeof ProtectedSettingsRoute
+  '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/': typeof ProtectedIndexRoute
   '/invoices/$id': typeof ProtectedInvoicesIdRoute
@@ -90,8 +106,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_protected': typeof ProtectedRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
   '/_protected/clients': typeof ProtectedClientsRoute
   '/_protected/settings': typeof ProtectedSettingsRoute
+  '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/_protected/': typeof ProtectedIndexRoute
   '/_protected/invoices/$id': typeof ProtectedInvoicesIdRoute
@@ -101,8 +119,10 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/auth'
     | '/clients'
     | '/settings'
+    | '/auth/complete-profile'
     | '/auth/sign-in'
     | '/'
     | '/invoices/$id'
@@ -110,8 +130,10 @@ export interface FileRouteTypes {
     | '/invoices'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
     | '/clients'
     | '/settings'
+    | '/auth/complete-profile'
     | '/auth/sign-in'
     | '/'
     | '/invoices/$id'
@@ -120,8 +142,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_protected'
+    | '/auth'
     | '/_protected/clients'
     | '/_protected/settings'
+    | '/auth/complete-profile'
     | '/auth/sign-in'
     | '/_protected/'
     | '/_protected/invoices/$id'
@@ -131,7 +155,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   ProtectedRoute: typeof ProtectedRouteWithChildren
-  AuthSignInRoute: typeof AuthSignInRoute
+  AuthRoute: typeof AuthRouteWithChildren
 }
 export interface FileServerRoutesByFullPath {
   '/api/invoices/$id/pdf': typeof ProtectedApiInvoicesIdPdfServerRoute
@@ -157,6 +181,13 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_protected': {
       id: '/_protected'
       path: ''
@@ -173,10 +204,17 @@ declare module '@tanstack/react-router' {
     }
     '/auth/sign-in': {
       id: '/auth/sign-in'
-      path: '/auth/sign-in'
+      path: '/sign-in'
       fullPath: '/auth/sign-in'
       preLoaderRoute: typeof AuthSignInRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/complete-profile': {
+      id: '/auth/complete-profile'
+      path: '/complete-profile'
+      fullPath: '/auth/complete-profile'
+      preLoaderRoute: typeof AuthCompleteProfileRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_protected/settings': {
       id: '/_protected/settings'
@@ -249,9 +287,21 @@ const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
   ProtectedRouteChildren,
 )
 
+interface AuthRouteChildren {
+  AuthCompleteProfileRoute: typeof AuthCompleteProfileRoute
+  AuthSignInRoute: typeof AuthSignInRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCompleteProfileRoute: AuthCompleteProfileRoute,
+  AuthSignInRoute: AuthSignInRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   ProtectedRoute: ProtectedRouteWithChildren,
-  AuthSignInRoute: AuthSignInRoute,
+  AuthRoute: AuthRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

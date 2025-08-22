@@ -35,7 +35,7 @@ function RouteComponent() {
 
       <div className="flex gap-2">
         <Button variant="outline" size="sm" asChild>
-          <Link to="/">
+          <Link to="/invoices">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Link>

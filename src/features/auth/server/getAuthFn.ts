@@ -19,10 +19,19 @@ export const getAuthFn = createServerFn({ method: "GET" }).handler(async () => {
 
   const { id } = session.user;
 
-  const user = await db
-    .select({ id: users.id, email: users.email, name: users.name })
+  const [user] = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      name: users.name,
+      active: users.active,
+    })
     .from(users)
     .where(eq(users.id, id));
 
-  return { user: user[0] };
+  if (!user.active) {
+    throw redirect({ to: "/auth/complete-profile" });
+  }
+
+  return { user };
 });

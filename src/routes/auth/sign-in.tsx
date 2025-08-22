@@ -20,37 +20,35 @@ function RouteComponent() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">
-            {step === "email" ? "Sign in" : "Enter OTP"}
-          </CardTitle>
-          <CardDescription>
-            {step === "email"
-              ? "Enter your email to receive a one-time code."
-              : `We sent a code to ${email}`}
-          </CardDescription>
-        </CardHeader>
+    <Card className="w-full max-w-md shadow-lg">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold">
+          {step === "email" ? "Sign in" : "Enter OTP"}
+        </CardTitle>
+        <CardDescription>
+          {step === "email"
+            ? "Enter your email to receive a one-time code."
+            : `We sent a code to ${email}`}
+        </CardDescription>
+      </CardHeader>
 
-        {step === "email" && (
-          <RequestOtpForm
-            onSuccess={(email) => {
-              setEmail(email);
-              setStep("otp");
-            }}
-          />
-        )}
+      {step === "email" && (
+        <RequestOtpForm
+          onSuccess={(email) => {
+            setEmail(email);
+            setStep("otp");
+          }}
+        />
+      )}
 
-        {step === "otp" && (
-          <VerifyOtpForm
-            email={email}
-            onSuccess={() => {
-              navigate({ to: "/" });
-            }}
-          />
-        )}
-      </Card>
-    </div>
+      {step === "otp" && (
+        <VerifyOtpForm
+          email={email}
+          onSuccess={() => {
+            navigate({ to: "/" });
+          }}
+        />
+      )}
+    </Card>
   );
 }
