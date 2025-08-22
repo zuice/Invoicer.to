@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { calculateDueDate } from "@/features/invoices/utils/calculateDueDate";
 
 type InvoiceWithItems = typeof invoices.$inferSelect & {
   items: (typeof lineItems.$inferSelect)[];
@@ -25,7 +26,6 @@ export function InvoiceRaw({ invoice }: Props) {
 
   return (
     <>
-      {/* Header */}
       <div className="flex justify-between items-start border-b pb-6">
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-bold">{invoice.fromName}</h2>
@@ -50,13 +50,16 @@ export function InvoiceRaw({ invoice }: Props) {
             Date: {invoice.date.toLocaleDateString()}
           </p>
           <p className="text-sm text-muted-foreground">
-            Due by: {invoice.paymentTerms}
+            Due by:{" "}
+            {calculateDueDate(
+              invoice.date,
+              invoice.paymentTerms,
+            ).toLocaleDateString()}
           </p>
           <p className="font-bold text-lg">Balance Due: ${total.toFixed(2)}</p>
         </div>
       </div>
 
-      {/* Bill To */}
       <div className="flex flex-col gap-2 border-b pb-6">
         <h3 className="font-semibold text-lg">Bill To</h3>
         <div className="flex flex-col gap-1 text-sm text-muted-foreground">
@@ -72,7 +75,6 @@ export function InvoiceRaw({ invoice }: Props) {
         </div>
       </div>
 
-      {/* Line Items */}
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -110,7 +112,6 @@ export function InvoiceRaw({ invoice }: Props) {
         </Table>
       </div>
 
-      {/* Totals */}
       <div className="flex justify-end">
         <div className="w-64 flex flex-col gap-2 text-right">
           <div className="flex justify-between text-sm">
