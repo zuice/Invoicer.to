@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { User } from "@/lib/db/schema";
-import { signOutFn } from "@/features/auth/server/signOutFn";
+import { useQuery } from "@tanstack/react-query";
+import { LogOut, PlusCircle, FileText, Users } from "lucide-react";
 
+import { signOutFn } from "@/features/auth/server/signOutFn";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -18,14 +19,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, PlusCircle, FileText, Users } from "lucide-react";
+import { meQueryOptions } from "@/features/auth/server/getMeFn";
 
-interface Props {
-  user?: Partial<User>;
-}
-
-export function Nav({ user }: Props) {
+export function Nav() {
   const navigate = useNavigate();
+  const { data: user } = useQuery(meQueryOptions());
   const isAuthenticated = !!user;
 
   const handleSignOut = () => {

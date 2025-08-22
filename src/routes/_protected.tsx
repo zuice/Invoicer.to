@@ -1,20 +1,23 @@
-import { Outlet, useLoaderData, createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 
-import { getAuthFn } from "@/features/auth/server/getAuthFn";
 import { Nav } from "@/components/Nav";
+import { getAuthFn2 } from "@/features/auth/server/getAuthFn2";
+import { meQueryOptions } from "@/features/auth/server/getMeFn";
 
 export const Route = createFileRoute("/_protected")({
-  beforeLoad: () => getAuthFn(),
-  loader: ({ context }) => context.user,
+  beforeLoad: () => getAuthFn2(),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(meQueryOptions());
+
+    return context.user;
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const user = useLoaderData({ from: "/_protected" });
-
   return (
     <>
-      <Nav user={user} />
+      <Nav />
       <div className="container mx-auto flex flex-col gap-4 mt-4">
         <Outlet />
       </div>

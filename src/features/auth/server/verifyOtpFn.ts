@@ -12,7 +12,10 @@ import { auth } from "@/lib/auth";
 export const verifyOtpFn = createServerFn({ method: "POST" })
   .validator(verifyOtpSchema)
   .handler(async ({ data: { email, code } }) => {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const [user] = await db
+      .select({ id: users.id, email: users.email, name: users.name })
+      .from(users)
+      .where(eq(users.email, email));
 
     if (!user) throw new Error("User not found");
 
